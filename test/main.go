@@ -3,37 +3,32 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
-	discgo "github.com/zigglie/discgo"
+	"github.com/zigglie/discgo"
 	"github.com/zigglie/envite"
-	socket "github.com/zigglie/websocks"
 )
-
-var _discord string = "wss://gateway.discord.gg/?v=6&encoding=json"
-
-func goReadBytes(c chan []byte, s *socket.Socket) {
-	for {
-		tmp := make([]byte, 1024)
-		n, err := s.GetConn().Read(tmp)
-
-		if err != nil {
-			panic(err)
-		}
-
-		if n != 0 {
-			c <- tmp
-		}
-	}
-}
 
 func main() {
 	envite.Load()
 	c := discgo.NewClient(os.Getenv("discgo"))
+	startTime := time.Now()
 
 	c.OnMessage(func(m *discgo.MsgCreate) {
 		fmt.Println(m.Content)
-		if m.Author.Id == "110927968133464064" && m.Content == "Hello?" {
-			c.SendMessage(m.ChannelId, "Am-am.. I alive??? <:monkS:426470529709506578>")
+		if m.Content == ".dank" {
+			c.SendMessage(m.ChannelId, "That's pretty dank <:FeelsDankMan:426470052414488600>")
+		}
+		if m.Content == ";uptime" {
+			t := time.Now()
+			elapsed := t.Sub(startTime)
+			c.SendMessage(m.ChannelId, fmt.Sprintf("Uptime is %v <:Awoo:430840716873433099>", elapsed))
+		}
+		if m.Content == ";uptime nano" {
+			t := time.Now()
+			elapsed := t.Sub(startTime)
+			message := fmt.Sprintf("Uptime is: %vns <:Awoo:430840716873433099>", elapsed.Nanoseconds())
+			c.SendMessage(m.ChannelId, message)
 		}
 	})
 
